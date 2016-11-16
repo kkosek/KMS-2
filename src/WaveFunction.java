@@ -7,6 +7,7 @@ public class WaveFunction
 	private double [] rHamiltionian;
 	private double [] iHamiltonian;
 	
+	
 	private final double dx = 1/((double) Params.N);
 	
 	public WaveFunction() 
@@ -44,13 +45,19 @@ public class WaveFunction
 		}
 	}
 	
+
+	
 	public void integrate()
 	{
 		for (int k=0; k<Params.N + 1; k++)
 		{
-			rHalfValues[k] = rValues[k] + iHamiltonian[k]*Params.dTau*0.5; //32
-			
+			rHalfValues[k] = rValues[k] + iHamiltonian[k]*Params.dTau*0.5; //(32)
+			iValues[k] = iValues[k] - rH
 		}
 	}
 
+	public void rkMethod() //second-order method
+	{
+		
+	}
 }
