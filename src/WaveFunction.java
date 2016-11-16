@@ -56,8 +56,4 @@ public class WaveFunction
 		}
 	}
 
-	public void rkMethod() //second-order method
-	{
-		
-	}
 }
