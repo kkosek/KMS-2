@@ -7,6 +7,7 @@ public class SaveToFile
 {
 	private PrintWriter writer;
 	private String fileName;
+	private static int counter = 0;
 	
 	public SaveToFile(String fileName) 
 	{
@@ -14,7 +15,7 @@ public class SaveToFile
 		createFile();
 	}
 	
-	private void createFile()
+	public void createFile()
 	{
 		try
 		{
@@ -28,10 +29,14 @@ public class SaveToFile
 	
 	public void writeHeadline()
 	{
-		writer.println("N\tx\tepsilon\t");
+		writer.println("index\tN\tx\tepsilon\t");
 	}
 
-	public void updateFile()
+	public void updateFile(double resultN, double resultX, double resultEpsilon)
+	{
+		writer.println(counter + "\t" + resultN + "\t" + resultX + "\t" + resultEpsilon);
+		counter+=1;
+	}
 	
 	public void closeFile()
 	{
