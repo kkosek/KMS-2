@@ -14,10 +14,7 @@ public class WaveFunction
 	private double tau;
 	private SaveToFile saveResult;
 	
-	
-	private final double dx = 1/((double) Params.N);
-	
-	public WaveFunction() 
+	public WaveFunction()
 	{
 		points = new double [Params.N + 1];
 		rValues = new double [Params.N + 1];
@@ -30,38 +27,31 @@ public class WaveFunction
 		saveResult = new SaveToFile("results.txt");
 		saveResult.createFile();
 		saveResult.writeHeadline();
-		
+		tau = 0;
+
 		for (int k=0; k<Params.N+1; k++)
 		{
-			points[k] = k*dx; //(27)
-			rValues[k] = Math.sqrt(2)*
+			points[k] = k*Params.dx; //(27)
+			rValues[k] = Math.sqrt(2.0)*
 					Math.sin(Params.n*Math.PI*points[k]); //(29)
 			
 			iValues[k] = 0; //(29)
 			rHamiltonian[k] = 0; 
 			iHamiltonian[k] = 0;
-			tau = 0;
 		}
 	}
 	
-	public void hamiltonian()
+	public void calculateHamiltonian()
 	{
-		rHamiltonian[0] = 0;
-		rHamiltonian[Params.N] = 0;
-		iHamiltonian[0] = 0;
-		iHamiltonian[Params.N] = 0; 
-		rHalfHamiltonian[0] = 0;
-		rHalfHamiltonian[Params.N] = 0; //this six lines are from (31) border conditions
-		
 		for (int k=1; k<Params.N; k++)
 		{
-			rHamiltonian[k] = -0.5*(rValues[k+1]+rValues[k-1]-2*rValues[k])/(dx*dx)
+			rHamiltonian[k] = -0.5*(rValues[k+1]+rValues[k-1]-2*rValues[k])/(Params.dx*Params.dx)
 					+ Params.kappa*(points[k]-0.5)*rValues[k]*Math.sin(tau*Params.omega); //(30)
 			
-			iHamiltonian[k] = -0.5*(iValues[k+1]+iValues[k-1]-2*iValues[k])/(dx*dx)
+			iHamiltonian[k] = -0.5*(iValues[k+1]+iValues[k-1]-2*iValues[k])/(Params.dx*Params.dx)
 					+ Params.kappa*(points[k]-0.5)*iValues[k]*Math.sin(tau*Params.omega); //(30)
 			
-			rHalfHamiltonian[k] = -0.5*(rHalfValues[k+1]+rHalfValues[k-1]-2*rHalfValues[k])/(dx*dx)
+			rHalfHamiltonian[k] = -0.5*(rHalfValues[k+1]+rHalfValues[k-1]-2*rHalfValues[k])/(Params.dx*Params.dx)
 					+ Params.kappa*(points[k]-0.5)*rHalfValues[k]*Math.sin(tau*Params.omega+Params.dTau*0.5); //(30)
 		}
 	}
@@ -73,7 +63,7 @@ public class WaveFunction
 		
 		for (int k=1; k<Params.N; k++)
 		{			
-			rHalfHamiltonian[k] = -0.5*(rHalfValues[k+1]+rHalfValues[k-1]-2*rHalfValues[k])/(dx*dx)
+			rHalfHamiltonian[k] = -0.5*(rHalfValues[k+1]+rHalfValues[k-1]-2*rHalfValues[k])/(Params.dx*Params.dx)
 					+ Params.kappa*(points[k]-0.5)*rHalfValues[k]*Math.sin(tau*Params.omega+Params.dTau*0.5); //(30)
 		}
 	}
@@ -81,12 +71,15 @@ public class WaveFunction
 	public void integrate()
 	{
 		for (int k=1; k<Params.N; k++)
-		{
 			rHalfValues[k] = rValues[k] + iHamiltonian[k]*Params.dTau*0.5; //(32)
 			countHalfHamiltonian();
+        for (int k=1; k<Params.N; k++)
 			iValues[k] = iValues[k] - rHalfHamiltonian[k]*Params.dTau; // (33)
-			rValues[k] = rHalfValues[k] + iValues[k]*Params.dTau*0.5; //(34)
-		}
+        for (int k=1; k<Params.N; k++)
+            iHamiltonian[k] = -0.5*(iValues[k+1]+iValues[k-1]-2*iValues[k])/(Params.dx*Params.dx)
+                    + Params.kappa*(points[k]-0.5)*iValues[k]*Math.sin(tau*Params.omega);
+		for (int k=1; k<Params.N; k++)
+            rValues[k] = rHalfValues[k] + iValues[k]*Params.dTau*0.5; //(34)
 	}
 	
 
@@ -97,7 +90,7 @@ public class WaveFunction
 		for (int i=0; i<rValues.length; i++)
 			resultN += rValues[i]*rValues[i] + iValues[i]*iValues[i];
 		
-		resultN *= dx;
+		resultN *= Params.dx;
 	}
 	
 	private void countResultX()
@@ -106,7 +99,7 @@ public class WaveFunction
 		for (int i=0; i<rValues.length; i++)
 			resultX += points[i]*(rValues[i]*rValues[i] + iValues[i]*iValues[i]);
 	
-		resultX *=dx;
+		resultX *=Params.dx;
 	}
 
 	private void countResultEpsilon() 
@@ -115,7 +108,7 @@ public class WaveFunction
 		for (int i=0; i<rValues.length; i++)
 			resultEpsilon += rValues[i]*rHamiltonian[i] + iValues[i]*iHamiltonian[i];
 		
-		resultEpsilon *= dx;
+		resultEpsilon *= Params.dx;
 	}
 	
 	public void updateResults()
@@ -131,7 +124,7 @@ public class WaveFunction
 		for (int i=0; i<Params.S; i++)
 		{
 			tau = i*Params.dTau;
-			hamiltonian();
+			calculateHamiltonian();
 			integrate();
 			updateResults();	
 		}

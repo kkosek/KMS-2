@@ -1,13 +1,15 @@
+import static java.lang.System.currentTimeMillis;
+
 public class Main
 {
 	public static double getCalculationTime(long startTime)
 	{
-		return (System.currentTimeMillis()-startTime)/1000;
+		return (currentTimeMillis()-startTime)/1000;
 	}
 	
 	public static void main (String [] args)
 	{
-		long startTime = System.currentTimeMillis();
+		long startTime = currentTimeMillis();
 		System.out.println("Application started...");
 		WaveFunction f = new WaveFunction();
 		f.simulate();
